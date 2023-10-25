@@ -13,6 +13,7 @@
 
 import json
 import time
+import pathlib
 import socketserver
 from pioneer_sdk import Pioneer #, Camera
 from threading import Timer
@@ -167,9 +168,17 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         if len(self.query_data) == 0:
             self.send_header("Content-Type", "text/html")
             self.end_headers()
-            with open('pioneer.html', encoding="utf-8") as f:
-                html = f.read()
-                self.wfile.write(str(html).encode("utf-8"))
+            html = '<html><body>pioneer.html not found</body></html>'
+            file = pathlib.Path('pioneer.html')
+            if file.exists():
+                with open('pioneer.html', encoding="utf-8") as f:
+                    html = f.read()
+            else:
+                file = pathlib.Path('../pioneer.html')
+                if file.exists():
+                    with open('../pioneer.html', encoding="utf-8") as f:
+                        html = f.read()
+            self.wfile.write(str(html).encode("utf-8"))
         else:
             self.send_header("Content-Type", "application/json")        
             self.end_headers()
