@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Pioneer Mini HTTP Controller</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDkuMS1jMDAxIDc5LmE4ZDQ3NTM0OSwgMjAyMy8wMy8yMy0xMzowNTo0NSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI0LjcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjRGNkE5N0E4NzMwQjExRUU4NkZBODJCRUIwN0NCNjAzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjRGNkE5N0E5NzMwQjExRUU4NkZBODJCRUIwN0NCNjAzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6NEY2QTk3QTY3MzBCMTFFRTg2RkE4MkJFQjA3Q0I2MDMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NEY2QTk3QTc3MzBCMTFFRTg2RkE4MkJFQjA3Q0I2MDMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5AuXhwAAAAMFBMVEWenZ3///9BPz/DwcGwWVHwnpfm5ub50Mzx8fHgeG7nt7P96+na2tr15d50c3P6+fnqQqWMAAABC0lEQVR42syTwXLDIAxE1wiEsFXp//+2C0mnzjR2r9GB8dhPy2rB2P4pfBZgQAQkrwALYAhCrgCVzLZl4gpI5Db6Jm8U7PHoQB3AH5MWBctYepQKVcuzT3hg/2lDKekiZk9CqU3XmV+j9bVJuB1cVB98FNlWc6LW0ZMd7N+31BWGgJvKBIzo3ltXtoq4mey998FqjcnBlECZIbqampFf29WJUYDTEZiIiKpbsNwSZYqnrBwsNdcMdMD1WYE0yCmXFL6rlb6mCNPh4cjLcSczK7X9ns7SfQ1WiIzj7sIYNUa/u1EyicNcb4Cg08B7IKcJSHNcKHBSzsfSKw86v4rfXvvM8435hF/vW4ABAFS/C4NxIIF6AAAAAElFTkSuQmCC">
+<style>
+* {
+	font-family: Tahoma, sans-serif;
+	font-size: 14px;
+}
+
+button {
+	width: 80px;
+	height: 80px;
+	cursor: pointer;
+	background: #CCC;
+	border-radius: 4px;
+	border: 1px #999 solid;
+	background-repeat: no-repeat;
+	background-size: 40px;
+	background-position-x: center;
+	background-position-y: 8px;
+	padding-top: 48px;
+}
+
+.land {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik03NTQtMzI0IDEyMC01MDB2LTIyMGw2MCAyMCAyOCA4NCAxOTIgNTR2LTMxOGw4MCAyMCAxMTAgMzUwIDIwMCA1NnEyMyA2IDM2LjUgMjQuNVQ4NDAtMzg4cTAgMzMtMjcgNTN0LTU5IDExWk0xMjAtMTIwdi04MGg3MjB2ODBIMTIwWiIvPjwvc3ZnPg==')
+}
+
+.takeoff {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik0xMjAtMTIwdi04MGg3MjB2ODBIMTIwWm03NC0yMDBMODAtNTE0bDYyLTEyIDcwIDYyIDE5Mi01Mi0xNjItMjc0IDc4LTI0IDI3NCAyNDYgMjAwLTU0cTMyLTkgNTggMTJ0MjYgNTZxMCAyMi0xMy41IDM5VDgzMC00OTJMMTk0LTMyMFoiLz48L3N2Zz4=')
+}
+
+.rotate-cw {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik00NDAtODBxLTc1IDAtMTQwLjUtMjguNXQtMTE0LTc3cS00OC41LTQ4LjUtNzctMTE0VDgwLTQ0MHEwLTE1MCAxMDUtMjU1dDI1NS0xMDVoNmwtNjItNjIgNTYtNTggMTYwIDE2MC0xNjAgMTYwLTU2LTU4IDYyLTYyaC02cS0xMTcgMC0xOTguNSA4MS41VDE2MC00NDBxMCAxMTcgODEuNSAxOTguNVQ0NDAtMTYwcTM1IDAgNjktOC41dDY1LTI1LjVsNTggNThxLTQzIDI4LTkyIDQyVDQ0MC04MFptMjQwLTEyMEw0NDAtNDQwbDI0MC0yNDAgMjQwIDI0MC0yNDAgMjQwWm0wLTExNCAxMjYtMTI2LTEyNi0xMjYtMTI2IDEyNiAxMjYgMTI2Wm0wLTEyNloiLz48L3N2Zz4=')
+}
+
+.rotate-ccw {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik01MjAtODBxLTUxIDAtMTAwLTE0dC05Mi00Mmw1OC01OHEzMSAxNyA2NSAyNS41dDY5IDguNXExMTcgMCAxOTguNS04MS41VDgwMC00NDBxMC0xMTctODEuNS0xOTguNVQ1MjAtNzIwaC02bDYyIDYyLTU2IDU4LTE2MC0xNjAgMTYwLTE2MCA1NiA1OC02MiA2Mmg2cTE1MCAwIDI1NSAxMDV0MTA1IDI1NXEwIDc1LTI4LjUgMTQwLjV0LTc3IDExNHEtNDguNSA0OC41LTExNCA3N1Q1MjAtODBaTTI4MC0yMDAgNDAtNDQwbDI0MC0yNDAgMjQwIDI0MC0yNDAgMjQwWm0wLTExNCAxMjYtMTI2LTEyNi0xMjYtMTI2IDEyNiAxMjYgMTI2Wm0wLTEyNloiLz48L3N2Zz4=')
+}
+
+.forward {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48cGF0aCBkPSJNMTggMTBsLTEuNCAxLjRMMTMgNy44VjIwaC0yVjcuOGwtMy41IDMuNUw2IDEwbDYtNiA2IDZ6Ii8+PC9zdmc+')
+}
+
+.back {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48cGF0aCBkPSJNMTIgMjBsLTYtNiAxLjUtMS40IDMuNSAzLjZWNGgydjEyLjJsMy42LTMuNkwxOCAxNGwtNiA2eiIvPjwvc3ZnPg==')
+}
+
+.left {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48cGF0aCBkPSJNNCwxMmw2LTZsMS40LDEuNUw3LjgsMTFIMjB2Mkg3LjhsMy42LDMuNkwxMCwxOEw0LDEyeiIvPjwvc3ZnPg==')
+}
+
+.right {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Im01NjAtMjQwLTU2LTU4IDE0Mi0xNDJIMTYwdi04MGg0ODZMNTA0LTY2Mmw1Ni01OCAyNDAgMjQwLTI0MCAyNDBaIi8+PC9zdmc+')
+}
+
+.up {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48bGluZWFyR3JhZGllbnQgaWQ9IkEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iOC43NDEiIHkxPSIxNC45NSIgeDI9IjE1LjI1OSIgeTI9IjE0Ljk1Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyNGU4MmUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyNDZhMmUiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGQ9Ik04LjcgOC42djExLjdjMCAuNiAxLjUgMS4xIDMuMyAxLjFzMy4zLS41IDMuMy0xLjFWOC42SDguN3oiIGZpbGw9InVybCgjQSkiLz48bGluZWFyR3JhZGllbnQgaWQ9IkIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iNiIgeTE9IjYuOSIgeDI9IjE4IiB5Mj0iNi45Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyNGU4MmUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyNDZhMmUiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGQ9Ik02IDguNmMxLjUgMS41IDMuNyAyLjUgNiAyLjVzNC41LS45IDYtMi41bC02LTYtNiA2eiIgZmlsbD0idXJsKCNCKSIvPjwvc3ZnPg==')
+}
+
+.down {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48bGluZWFyR3JhZGllbnQgaWQ9IkEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iOC43NDEiIHkxPSI5LjA2IiB4Mj0iMTUuMjU5IiB5Mj0iOS4wNiI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZTczNTA4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNWYyNjAwIi8+PC9saW5lYXJHcmFkaWVudD48cGF0aCBkPSJNMTUuMyAxNS41VjMuOGMwLS42LTEuNS0xLjEtMy4zLTEuMXMtMy4zLjUtMy4zIDEuMXYxMS43aDYuNnoiIGZpbGw9InVybCgjQSkiLz48bGluZWFyR3JhZGllbnQgaWQ9IkIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iMTcuOTk4IiB5MT0iMTcuMTM0IiB4Mj0iNi4wMDIiIHkyPSIxNy4xMzQiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzVmMjYwMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2U3MzUwOCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZD0iTTE4IDE1LjRjLTEuNS0xLjUtMy43LTIuNS02LTIuNXMtNC41LjktNiAyLjVsNiA2IDYtNnoiIGZpbGw9InVybCgjQikiLz48L3N2Zz4=')
+}
+
+button:hover {
+	opacity: 0.8;
+}
+
+button:disabled {
+	opacity: 0.2
+}
+
+.green {
+	color: #3C0;
+}
+
+.red {
+	color: #C30;
+}
+
+.center-hv {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%)
+}
+
+span {
+	font-size: 13px;
+}
+</style>
+</head>
+<body>
+	<script>
+	const serverUrl = "http://127.0.0.1:41017/?action="
+	
+	function req(str) {
+	const noserver = document.getElementById('no-server')
+			try {
+				const xmlHttp = new XMLHttpRequest();
+				xmlHttp.open( "GET", serverUrl + str, false)
+				xmlHttp.send( null );
+				console.log(xmlHttp.responseText)
+				noserver.style.display = 'none'
+				return xmlHttp.responseText;
+			} catch (ex) {
+				console.log('Server not connected')
+				noserver.style.display = 'block'
+			}
+	}	
+	
+	setInterval(function () {
+		const conn = document.getElementById('conn')
+		const dist = document.getElementById('dist')
+		let connected = false
+		let d = '?'
+		const resp = req('status')
+		try {
+			const json = JSON.parse(resp)
+			if (typeof json.connected !== 'undefined') {
+				connected = json.connected
+			}			
+			if (typeof json.d !== 'undefined') {
+				d = json.d
+			}
+		} catch (ex) {
+			console.warn(resp + ' is not valid json')
+		}
+		const btns = document.getElementsByTagName('button')
+		for (let i = 0; i<btns.length; i++) {
+			btns[i].disabled = !connected
+		}
+		conn.innerHTML = connected ? '<span class="green">Connected</span>' : '<span class="red">Disconnected</span>'
+		dist.innerHTML = "Dist: "+d + "m"
+		document.getElementById('instructions').style.display = connected ? 'none' : 'block'
+	}, 500)
+	
+	</script>
+
+<div class="center-hv">
+	<table>
+		<tr>
+			<td><button onclick="req('liftoff')" class="takeoff" disabled>Takeoff</button></td>
+			<td><button onclick="req('land')" class="land" disabled>Land</button></td>
+			<td><span id="conn">?</span><br/>
+			<span id="dist">0</span></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
+			<td><button onclick="req('turnLeft')" class="rotate-ccw" disabled>Turn left</button></td>
+			<td><button onclick="req('forward')" class="forward" disabled>Forward</button></td>
+			<td><button onclick="req('turnRight')" class="rotate-cw" disabled>Turn right</button></td>
+		</tr>
+		<tr>
+			<td><button onclick="req('left')" class="left" disabled>Left</button></td>
+			<td><!--button onclick="req('stop')" class="stop" disabled>Stop</button--></td>
+			<td><button onclick="req('right')" class="right" disabled>Right</button></td>
+		</tr>
+		<tr>
+			<td><button onclick="req('up')" class="up" disabled>Up</button></td>
+			<td><button onclick="req('back')" class="back" disabled>Back</button></td>
+			<td><button onclick="req('down')" class="down" disabled>Down</button></td>
+		</tr>
+	</table>
+	<div id="instructions">
+		<ol>
+		<li>Turn on the drone</li>
+		<li>Connect to WiFi<br>"PioneerMiniXXXXXXXXXX"<br>using password "12345678"</li>
+		</ol>
+	</div>
+	
+	<div id="no-server" style="display: none; color: #C30; text-align: center">
+		Cannot connect to server<br>"127.0.0.1:41017"
+	</div>
+</div>
+</body>
+</html>
