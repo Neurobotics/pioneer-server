@@ -82,9 +82,7 @@ def resetCh():
 
 def controlDef():
     global TIMER_COUNT, TIMER_STEPS, isControlling, ch_1, ch_2, ch_3, ch_4, ch_5
-
     if not isControlling: return
-    # Sets controls for COMMAND_TIME_SECONDS and then resets them
     TIMER_COUNT = TIMER_COUNT + 1
     if TIMER_COUNT >= TIMER_STEPS:
         TIMER_COUNT = 0        
@@ -155,6 +153,7 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                     img_str = img_enc[1].tostring()                    
                     img_byte = base64.b64encode(img_str).decode("utf-8")
                     out["frame"] = img_byte
+            elif action == "disarm": pioneer_mini.disarm()
             elif action == "left": resetCh(); ch_4 = min_v 
             elif action == "right": resetCh(); ch_4 = max_v 
             elif action == "forward": resetCh(); ch_3 = min_v 
@@ -175,7 +174,7 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             elif action == "land":
                 isControlling = False
                 pioneer_mini.land()
-                time.sleep(1)
+                time.sleep(2)
                 pioneer_mini.disarm()
             elif action == "status":                   
                 if connected:
