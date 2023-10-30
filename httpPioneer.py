@@ -11,11 +11,14 @@
 # 3. Call commands via http requests, e.g. 'http://127.0.0.1:41017/?action=takeoff'
 # 4. Or use web UI by opening 'http://127.0.0.1:41017' or 'pioneer.html' in a browser
 
+import cv2
 import json
 import time
+import base64
 import pathlib
 import socketserver
-from pioneer_sdk import Pioneer #, Camera
+import numpy as np
+from pioneer_sdk import Pioneer, Camera
 from threading import Timer
 from functools import cached_property
 from http.cookies import SimpleCookie
@@ -30,9 +33,12 @@ class RepeatTimer(Timer):
 PORT = 41017
 
 pioneer_mini = Pioneer()
+camera = Camera()
 
 # Time interval for each command
-COMMAND_TIME_SECONDS = 0.5
+COMMAND_TIME_SECONDS = 0.05
+TIMER_STEPS = 10
+TIMER_COUNT = 0
 
 # Min-max RC values
 min_v = 1300
@@ -42,12 +48,17 @@ max_v = 1700
 min_h = 0.5
 max_h = 2.0
 
+# RC min max
+RC_MIN = 1000
+RC_NONE = 1500
+RC_MAX = 2000
+
 # Channel values (in some 'RC' values)
-def_ch_1 = 1500
-def_ch_2 = 1500
-def_ch_3 = 1500
-def_ch_4 = 1500
-def_ch_5 = 2000
+def_ch_1 = RC_NONE
+def_ch_2 = RC_NONE
+def_ch_3 = RC_NONE
+def_ch_4 = RC_NONE
+def_ch_5 = RC_MAX
 
 ch_1 = def_ch_1
 ch_2 = def_ch_2
@@ -70,9 +81,13 @@ def resetCh():
     ch_5 = def_ch_5
 
 def controlDef():
-    global isControlling, ch_1, ch_2, ch_3, ch_4, ch_5
+    global TIMER_COUNT, TIMER_STEPS, isControlling, ch_1, ch_2, ch_3, ch_4, ch_5
+
+    if not isControlling: return
     # Sets controls for COMMAND_TIME_SECONDS and then resets them
-    if isControlling:
+    TIMER_COUNT = TIMER_COUNT + 1
+    if TIMER_COUNT >= TIMER_STEPS:
+        TIMER_COUNT = 0        
         pioneer_mini.send_rc_channels(
             channel_1=ch_1,
             channel_2=ch_2,
@@ -80,7 +95,7 @@ def controlDef():
             channel_4=ch_4,
             channel_5=ch_5
         )
-        resetCh()
+        resetCh()   
 
 
 pioneer_timer = RepeatTimer(COMMAND_TIME_SECONDS, controlDef)
@@ -109,7 +124,7 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         return SimpleCookie(self.headers.get("Cookie"))
 
     def get_response(self):
-        global isServing, isControlling, ch_1, ch_2, ch_3, ch_4, ch_5, max_h, min_h, pioneer_mini, pioneer_timer
+        global TIMER_STEPS, isControlling, isServing, ch_1, ch_2, ch_3, ch_4, ch_5, max_h, min_h, pioneer_mini, pioneer_timer
         data = self.query_data
        
         out = { "result": False }
@@ -131,18 +146,27 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 out["result"] = False
         if connected:
             out["result"] = True
-            if action == "left": resetCh(); ch_4 = min_v 
+            if action == "setStep" and 'step' in data: TIMER_STEPS = min(1000, max(100, float(data['step'])) / 50)
+            elif action == "frame":
+                frame = camera.get_frame()
+                if frame is not None:
+                    img = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    img_enc = cv2.imencode(".jpg ", img)                    
+                    img_str = img_enc[1].tostring()                    
+                    img_byte = base64.b64encode(img_str).decode("utf-8")
+                    out["frame"] = img_byte
+            elif action == "left": resetCh(); ch_4 = min_v 
             elif action == "right": resetCh(); ch_4 = max_v 
             elif action == "forward": resetCh(); ch_3 = min_v 
             elif action == "back": resetCh(); ch_3 = max_v 
-            elif action == "turnleft": resetCh(); ch_2 = 2000 
-            elif action == "turnright": resetCh(); ch_2 = 1000 
+            elif action == "turnleft": resetCh(); ch_2 = RC_MAX 
+            elif action == "turnright": resetCh(); ch_2 = RC_MIN
             elif action == "up":
                 resetCh()
-                if d < max_h: ch_1 = 2000
+                if d < max_h: ch_1 = RC_MAX
             elif action == "down": 
                 resetCh()
-                if d > min_h: ch_1 = 1000
+                if d > min_h: ch_1 = RC_MIN
             elif action == "liftoff" or action == "takeoff":    
                 pioneer_mini.arm()
                 time.sleep(1)                
