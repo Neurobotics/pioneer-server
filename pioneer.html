@@ -99,7 +99,7 @@ span {
 	const serverUrl = "http://127.0.0.1:41017/?action="
 	
 	function req(str) {
-	const noserver = document.getElementById('no-server')
+		const noserver = document.getElementById('no-server')
 			try {
 				const xmlHttp = new XMLHttpRequest();
 				xmlHttp.open( "GET", serverUrl + str, false)
@@ -178,6 +178,33 @@ span {
 	<div id="no-server" style="display: none; color: #C30; text-align: center">
 		Cannot connect to server<br>"127.0.0.1:41017"
 	</div>
+	
+	<script>
+	document.onkeypress = function (e) {
+			e = e || window.event;
+			// use e.keyCode
+			const k = e.keyCode
+			if (k == 113) { // "q" - turn left
+				req('turnLeft')
+			} else if (k == 101) { // "e" - turn right 
+				req('turnRight')
+			} else if (k == 119) { // "w" - forward 
+				req('forward')
+			} else if (k == 115) { // "s" - back 
+				req('back')
+			} else if (k == 97) { // "a" - left 
+				req('left')
+			} else if (k == 100) { // "d" - left 
+				req('right')
+			} else if (k == 105) { // "i" - up 
+				req('up')
+			} else if (k == 107) { // "k" - down 
+				req('down')
+			}
+
+			// console.log(e.keyCode) 
+	};
+	</script>
 </div>
 </body>
 </html>
