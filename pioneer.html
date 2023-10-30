@@ -23,6 +23,7 @@ button {
 	background-position-x: center;
 	background-position-y: 8px;
 	padding-top: 48px;
+	position: relative;
 }
 
 .land {
@@ -65,6 +66,14 @@ button {
 	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48bGluZWFyR3JhZGllbnQgaWQ9IkEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iOC43NDEiIHkxPSI5LjA2IiB4Mj0iMTUuMjU5IiB5Mj0iOS4wNiI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZTczNTA4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNWYyNjAwIi8+PC9saW5lYXJHcmFkaWVudD48cGF0aCBkPSJNMTUuMyAxNS41VjMuOGMwLS42LTEuNS0xLjEtMy4zLTEuMXMtMy4zLjUtMy4zIDEuMXYxMS43aDYuNnoiIGZpbGw9InVybCgjQSkiLz48bGluZWFyR3JhZGllbnQgaWQ9IkIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iMTcuOTk4IiB5MT0iMTcuMTM0IiB4Mj0iNi4wMDIiIHkyPSIxNy4xMzQiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzVmMjYwMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2U3MzUwOCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZD0iTTE4IDE1LjRjLTEuNS0xLjUtMy43LTIuNS02LTIuNXMtNC41LjktNiAyLjVsNiA2IDYtNnoiIGZpbGw9InVybCgjQikiLz48L3N2Zz4=')
 }
 
+body {
+	background-size: cover;
+}
+
+.stop {
+	background-color: #C30;
+}
+
 button:hover {
 	opacity: 0.8;
 }
@@ -89,6 +98,42 @@ button:disabled {
 	transform: translate(-50%, -50%)
 }
 
+.key:after {
+	color: #159;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+
+button.emergency {
+	background: repeating-linear-gradient(
+		45deg,
+		#fae21a,
+		#fae21a 10px,
+		#563e1f 10px,
+		#563e1f 20px
+	);
+	padding-top: 0;
+	text-transform: uppercase;
+	font-weight: bold;
+	color: #FFF;
+	font-size: 20px;
+	text-shadow: 0 0 3px #000;
+}
+
+.key_w:after { content: 'W' }
+.key_s:after { content: 'S' }
+.key_a:after { content: 'A' }
+.key_d:after { content: 'D' }
+
+.key_q:after { content: 'Q' }
+.key_e:after { content: 'E' }
+.key_u:after { content: 'U' }
+.key_j:after { content: 'J' }
+
+.key_o:after { content: 'O' }
+.key_l:after { content: 'L' }
+
 span {
 	font-size: 13px;
 }
@@ -104,7 +149,6 @@ span {
 				const xmlHttp = new XMLHttpRequest();
 				xmlHttp.open( "GET", serverUrl + str, false)
 				xmlHttp.send( null );
-				console.log(xmlHttp.responseText)
 				noserver.style.display = 'none'
 				return xmlHttp.responseText;
 			} catch (ex) {
@@ -118,7 +162,7 @@ span {
 		const dist = document.getElementById('dist')
 		let connected = false
 		let d = '?'
-		const resp = req('status')
+		const resp = req('frame')
 		try {
 			const json = JSON.parse(resp)
 			if (typeof json.connected !== 'undefined') {
@@ -127,6 +171,10 @@ span {
 			if (typeof json.d !== 'undefined') {
 				d = json.d
 			}
+			if (typeof json.frame !== 'undefined') {
+				console.log(json.frame.length)
+				document.body.style['background-image'] = "url(data:image/jpeg;base64,"+json.frame+")";
+			}
 		} catch (ex) {
 			console.warn(resp + ' is not valid json')
 		}
@@ -134,41 +182,17 @@ span {
 		for (let i = 0; i<btns.length; i++) {
 			btns[i].disabled = !connected
 		}
+		
+		
 		conn.innerHTML = connected ? '<span class="green">Connected</span>' : '<span class="red">Disconnected</span>'
 		dist.innerHTML = "Dist: "+d + "m"
 		document.getElementById('instructions').style.display = connected ? 'none' : 'block'
-	}, 500)
+	}, 200)
 	
 	</script>
 
-<div class="center-hv">
-	<table>
-		<tr>
-			<td><button onclick="req('liftoff')" class="takeoff" disabled>Takeoff</button></td>
-			<td><button onclick="req('land')" class="land" disabled>Land</button></td>
-			<td><span id="conn">?</span><br/>
-			<span id="dist">0</span></td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-		</tr>		
-		<tr>
-			<td><button onclick="req('turnLeft')" class="rotate-ccw" disabled>Turn left</button></td>
-			<td><button onclick="req('forward')" class="forward" disabled>Forward</button></td>
-			<td><button onclick="req('turnRight')" class="rotate-cw" disabled>Turn right</button></td>
-		</tr>
-		<tr>
-			<td><button onclick="req('left')" class="left" disabled>Left</button></td>
-			<td><!--button onclick="req('stop')" class="stop" disabled>Stop</button--></td>
-			<td><button onclick="req('right')" class="right" disabled>Right</button></td>
-		</tr>
-		<tr>
-			<td><button onclick="req('up')" class="up" disabled>Up</button></td>
-			<td><button onclick="req('back')" class="back" disabled>Back</button></td>
-			<td><button onclick="req('down')" class="down" disabled>Down</button></td>
-		</tr>
-	</table>
-	<div id="instructions">
+<div style="position: fixed; right: 10px; bottom: 10px">
+<div id="instructions">
 		<ol>
 		<li>Turn on the drone</li>
 		<li>Connect to WiFi<br>"PioneerMiniXXXXXXXXXX"<br>using password "12345678"</li>
@@ -178,11 +202,39 @@ span {
 	<div id="no-server" style="display: none; color: #C30; text-align: center">
 		Cannot connect to server<br>"127.0.0.1:41017"
 	</div>
+	<table>
+		<tr>
+			<td><button onclick="req('liftoff')" class="takeoff key key_o" disabled>Takeoff</button></td>
+			<td><button onclick="req('land')" class="land key key_l" disabled>Land</button></td>
+			<td><span id="conn">?</span><br/>
+			<span id="dist">0</span></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
+			<td><button onclick="req('turnLeft')" class="rotate-ccw key key_q" disabled>Turn left</button></td>
+			<td><button onclick="req('forward')" class="forward key key_w" disabled>Forward</button></td>
+			<td><button onclick="req('turnRight')" class="rotate-cw key key_e" disabled>Turn right</button></td>
+		</tr>
+		<tr>
+			<td><button onclick="req('left')" class="left key key_a" disabled>Left</button></td>
+			<td><!--button onclick="req('land')" class="stop" disabled>Stop</button--></td>
+			<td><button onclick="req('right')" class="right key key_d" disabled>Right</button></td>
+		</tr>
+		<tr>
+			<td><button onclick="req('up')" class="up key key_u" disabled>Up</button></td>
+			<td><button onclick="req('back')" class="back key key_s" disabled>Back</button></td>
+			<td><button onclick="req('down')" class="down key key_j" disabled>Down</button></td>
+		</tr>
+		<tr>
+			<td colspan="3"><button onclick="req('disarm')" class="key key_p emergency" disabled style="width: 100%;">EMERGENCY STOP</button></td>
+		</tr>
+	</table>
 	
 	<script>
 	document.onkeypress = function (e) {
 			e = e || window.event;
-			// use e.keyCode
 			const k = e.keyCode
 			if (k == 113) { // "q" - turn left
 				req('turnLeft')
@@ -196,13 +248,15 @@ span {
 				req('left')
 			} else if (k == 100) { // "d" - left 
 				req('right')
-			} else if (k == 105) { // "i" - up 
+			} else if (k == 117) { // "u" - up 
 				req('up')
-			} else if (k == 107) { // "k" - down 
+			} else if (k == 106) { // "j" - down 
 				req('down')
+			} else if (k == 108) { // "l" - land
+				req('land')
+			} else if (k == 111) { // "o" - takeoff
+				req('land')
 			}
-
-			// console.log(e.keyCode) 
 	};
 	</script>
 </div>
