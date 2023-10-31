@@ -78,6 +78,7 @@ isControlling = True
 
 # Is used to stop the server on 'exit' command
 isServing = True
+isLoggingHttp = False
 
 def resetCh():
     global ch_1, ch_2, ch_3, ch_4, ch_5, def_ch_1, def_ch_2, def_ch_3, def_ch_4, def_ch_5
@@ -89,12 +90,9 @@ def resetCh():
 
 def controlDef():
     global TIMER_COUNT, TIMER_STEPS, isControlling, ch_1, ch_2, ch_3, ch_4, ch_5
-    
-    TIMER_COUNT = TIMER_COUNT + 1
-    
+    TIMER_COUNT = TIMER_COUNT + 1    
     if TIMER_COUNT >= TIMER_STEPS:
         TIMER_COUNT = 0
-        print(TIMER_STEPS, SPEED_TURN, SPEED_MOVE, SPEED_VERT)
         if not isControlling: return        
         pioneer_mini.send_rc_channels(
             channel_1=ch_1,
@@ -107,15 +105,20 @@ def controlDef():
 
 def moveHorRCValue(directionSignum):
     global RC_NONE, RC_MOVE_RANGE, SPEED_MOVE
-    return RC_NONE + directionSignum * RC_MOVE_RANGE * SPEED_MOVE
+    return int(RC_NONE + directionSignum * RC_MOVE_RANGE * SPEED_MOVE)
 
 def moveVertRCValue(directionSignum):
     global RC_NONE, RC_VERT_RANGE, SPEED_VERT
-    return RC_NONE + directionSignum * RC_VERT_RANGE * SPEED_VERT
+    return int(RC_NONE + directionSignum * RC_VERT_RANGE * SPEED_VERT)
 
 def turnRCValue(directionSignum):
     global RC_NONE, RC_TURN_RANGE, SPEED_TURN
-    return RC_NONE + directionSignum * RC_VERT_RANGE * SPEED_VERT
+    return int(RC_NONE + directionSignum * RC_VERT_RANGE * SPEED_VERT)
+
+def limitValue(value, min, max):
+    if value < min: return min
+    if value > max: return max
+    return value
 
 pioneer_timer = RepeatTimer(COMMAND_TIME_SECONDS, controlDef)
 pioneer_timer.start()
@@ -128,6 +131,11 @@ class WebRequestHandler(BaseHTTPRequestHandler):
     @cached_property
     def query_data(self):
         return dict(parse_qsl(self.url.query))
+    
+    def log_message(self, format, *args):
+        global isLoggingHttp
+        if isLoggingHttp:
+            BaseHTTPRequestHandler.log_message(self, format, *args)
 
     @cached_property
     def post_data(self):
@@ -156,6 +164,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         out["action"] = action
         action = str(action).lower()
         out["d"] = d
+        if 'battery' in data:             
+            out['battery'] = pioneer_mini.get_battery_status()
         if not connected:
             if action == "exit":
                 pioneer_mini.land()
@@ -165,11 +175,10 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             else: 
                 out["result"] = False
         if action == "settimervalue" and 'value' in data:
-            TIMER_STEPS = int(min(1000, max(100, int(data['value'])) / (COMMAND_TIME_SECONDS * 1000)))
-            print('SETTING TIMER', TIMER_STEPS)
-        elif action == "setspeedmove" and 'value' in data: SPEED_MOVE = min(1.0, max(0.1, float(data['value'])))
-        elif action == "setspeedturn" and 'value' in data: SPEED_TURN = min(1.0, max(0.1, float(data['value'])))
-        elif action == "setspeedvert" and 'value' in data: SPEED_VERT = min(1.0, max(0.1, float(data['value'])))
+            TIMER_STEPS = int(limitValue(int(data['value']), 100, 1000) / (COMMAND_TIME_SECONDS * 1000))
+        elif action == "setspeedmove" and 'value' in data: SPEED_MOVE = limitValue(float(data['value']), 0.1, 1.0)
+        elif action == "setspeedturn" and 'value' in data: SPEED_TURN = limitValue(float(data['value']), 0.1, 1.0)
+        elif action == "setspeedvert" and 'value' in data: SPEED_VERT = limitValue(float(data['value']), 0.1, 1.0)
         elif connected:
             out["result"] = True            
             if action == "frame":
@@ -177,7 +186,7 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 if frame is not None:
                     img = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
                     img_enc = cv2.imencode(".jpg ", img)                    
-                    img_str = img_enc[1].tostring()                    
+                    img_str = img_enc[1].tobytes()                    
                     img_byte = base64.b64encode(img_str).decode("utf-8")
                     out["frame"] = img_byte
             elif action == "disarm": pioneer_mini.disarm()
