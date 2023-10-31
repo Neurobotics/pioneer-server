@@ -9,6 +9,7 @@
 * {
 	font-family: Tahoma, sans-serif;
 	font-size: 14px;
+	box-sizing: border-box
 }
 
 button {
@@ -69,9 +70,21 @@ button {
 	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48bGluZWFyR3JhZGllbnQgaWQ9IkEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iOC43NDEiIHkxPSI5LjA2IiB4Mj0iMTUuMjU5IiB5Mj0iOS4wNiI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZTczNTA4Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNWYyNjAwIi8+PC9saW5lYXJHcmFkaWVudD48cGF0aCBkPSJNMTUuMyAxNS41VjMuOGMwLS42LTEuNS0xLjEtMy4zLTEuMXMtMy4zLjUtMy4zIDEuMXYxMS43aDYuNnoiIGZpbGw9InVybCgjQSkiLz48bGluZWFyR3JhZGllbnQgaWQ9IkIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iMTcuOTk4IiB5MT0iMTcuMTM0IiB4Mj0iNi4wMDIiIHkyPSIxNy4xMzQiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzVmMjYwMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2U3MzUwOCIvPjwvbGluZWFyR3JhZGllbnQ+PHBhdGggZD0iTTE4IDE1LjRjLTEuNS0xLjUtMy43LTIuNS02LTIuNXMtNC41LjktNiAyLjVsNiA2IDYtNnoiIGZpbGw9InVybCgjQikiLz48L3N2Zz4=')
 }
 
+html, body {
+	width: 100vw;
+	height: 100vh;
+	padding: 0;
+	margin: 0;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+}
+
 body {
 	background-color: #666;
 	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
 .stop {
@@ -79,7 +92,7 @@ body {
 }
 
 button:hover {
-	opacity: 0.8;
+	opacity: 0.8
 }
 
 button:disabled {
@@ -174,6 +187,12 @@ span {
 </table>
 </div>
 
+<div style="position: fixed; left: 10px; top: 10px; width: 32px; border-radius: 3px; border: 2px solid #FFF; padding: 2px; height: 20px; display: none; box-shadow: 0 0 2px #000; background: rgba(0,0,0,0.3)" id="battery-holder">
+	<div id="battery" style="position: absolute; width: 0%; background: #FFF; height: 12px; border-radius: 2px"></div>
+	<div id="battery-text" style="position: absolute; width: calc(100% - 4px); height: 12px; font-size: 9px; text-align: center; color: #000; text-shadow: 0 0 2px #FFF"></div>
+	<div style="background: #FFF; width: 2px; height: 6px; position: absolute; left: calc(100% + 2px); top: 5px;">
+</div>
+
 <div style="position: fixed; right: 10px; bottom: 10px">
 <div id="instructions">
 		<ol>
@@ -189,8 +208,8 @@ span {
 		<tr>
 			<td><button onclick="req('liftoff')" class="takeoff key key_o" disabled>Takeoff</button></td>
 			<td><button onclick="req('land')" class="land key key_l" disabled>Land</button></td>
-			<td><span id="conn">?</span><br/>
-			<span id="dist">0</span></td>
+			<td style="background: rgba(0,0,0,0.5); text-align: center;"><span id="conn">?</span><br/>
+			<span id="dist" style="color: #FFF">0</span></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
@@ -238,8 +257,10 @@ span {
 			xmlHttp.open("GET", serverUrl + str, false)
 			xmlHttp.send(null)
 			noserver.style.display = 'none'
-			// if (!isServerConnected) updateAllSettings()
-			isServerConnected = true
+			if (!isServerConnected) {
+				isServerConnected = true
+				updateAllSettings()
+			}			
 			return xmlHttp.responseText
 		} catch (ex) {
 			console.log('Server not connected')
@@ -278,6 +299,17 @@ span {
 		setTimerValue(getLocalStorageItem('TimerValue', 200))
 	}
 	
+	var commandCounter = 0
+	var batteryQueryCounterMax = 10;
+	const battery_max = 4.05
+	const battery_min = 3.5
+	
+	function norm(value, min, max) {
+		value = parseFloat(value)
+		if (value < min) value = min
+		else if (value > max) value = max
+		return Math.round(100 * (value - min) / (max - min))
+	}
 	
 	window.onload = function () {
 		updateAllSettings()
@@ -287,7 +319,14 @@ span {
 			const dist = document.getElementById('dist')
 			let connected = false
 			let d = '?'
-			const resp = req('frame&battery=true')
+			let bat = null
+			let cmd = 'frame'
+			commandCounter++
+			if (commandCounter >= batteryQueryCounterMax) {
+				commandCounter = 0
+				cmd += "&battery=true"
+			}
+			const resp = req(cmd)
 			try {
 				const json = JSON.parse(resp)
 				if (typeof json.connected !== 'undefined') {
@@ -297,8 +336,10 @@ span {
 					d = json.d
 				}
 				if (typeof json.frame !== 'undefined') {
-					console.log(json.frame.length)
 					document.body.style['background-image'] = "url(data:image/jpeg;base64,"+json.frame+")";
+				}
+				if (typeof json.battery !== 'undefined' && json.battery !== null) {
+					bat = json.battery
 				}
 			} catch (ex) {
 				console.warn(resp + ' is not valid json')
@@ -308,9 +349,21 @@ span {
 				btns[i].disabled = !connected
 			}	
 			
+			if (bat != null) {
+				const batElement = document.getElementById('battery')
+				const batTextElement = document.getElementById('battery-text')
+				const batPercent = norm(bat, battery_min, battery_max)
+				if (batElement) batElement.style.width = 'calc(' + batPercent + '% - 4px)'
+				if (batTextElement) {
+					batTextElement.title = bat + "V"
+					batTextElement.innerHTML = batPercent + '%'
+				}
+			}
+			
 			conn.innerHTML = connected ? '<span class="green">Connected</span>' : '<span class="red">Disconnected</span>'
-			dist.innerHTML = "Dist: "+d + "m"
+			dist.innerHTML = d + "m"
 			document.getElementById('instructions').style.display = connected ? 'none' : 'block'
+			document.getElementById('battery-holder').style.display = connected ? 'block' : 'none'
 		}, 200)
 		
 		document.onkeypress = function (e) {
@@ -335,12 +388,10 @@ span {
 			} else if (k == 108) { // "l" - land
 				req('land')
 			} else if (k == 111) { // "o" - takeoff
-				req('land')
+				req('takeoff')
 			}
 		}	
-	}
-	
-	
+	}	
 	</script>
 </div>
 </body>
