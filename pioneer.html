@@ -57,6 +57,9 @@ button {
 .right {
 	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Im01NjAtMjQwLTU2LTU4IDE0Mi0xNDJIMTYwdi04MGg0ODZMNTA0LTY2Mmw1Ni01OCAyNDAgMjQwLTI0MCAyNDBaIi8+PC9zdmc+')
 }
+.tune {
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik00NDAtMTIwdi0yNDBoODB2ODBoMzIwdjgwSDUyMHY4MGgtODBabS0zMjAtODB2LTgwaDI0MHY4MEgxMjBabTE2MC0xNjB2LTgwSDEyMHYtODBoMTYwdi04MGg4MHYyNDBoLTgwWm0xNjAtODB2LTgwaDQwMHY4MEg0NDBabTE2MC0xNjB2LTI0MGg4MHY4MGgxNjB2ODBINjgwdjgwaC04MFptLTQ4MC04MHYtODBoNDAwdjgwSDEyMFoiLz48L3N2Zz4=')
+}
 
 .up {
 	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48bGluZWFyR3JhZGllbnQgaWQ9IkEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iOC43NDEiIHkxPSIxNC45NSIgeDI9IjE1LjI1OSIgeTI9IjE0Ljk1Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyNGU4MmUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyNDZhMmUiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGQ9Ik04LjcgOC42djExLjdjMCAuNiAxLjUgMS4xIDMuMyAxLjFzMy4zLS41IDMuMy0xLjFWOC42SDguN3oiIGZpbGw9InVybCgjQSkiLz48bGluZWFyR3JhZGllbnQgaWQ9IkIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iNiIgeTE9IjYuOSIgeDI9IjE4IiB5Mj0iNi45Ij48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyNGU4MmUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyNDZhMmUiLz48L2xpbmVhckdyYWRpZW50PjxwYXRoIGQ9Ik02IDguNmMxLjUgMS41IDMuNyAyLjUgNiAyLjVzNC41LS45IDYtMi41bC02LTYtNiA2eiIgZmlsbD0idXJsKCNCKSIvPjwvc3ZnPg==')
@@ -67,6 +70,7 @@ button {
 }
 
 body {
+	background-color: #666;
 	background-size: cover;
 }
 
@@ -140,56 +144,35 @@ span {
 </style>
 </head>
 <body>
-	<script>
-	const serverUrl = "http://127.0.0.1:41017/?action="
-	
-	function req(str) {
-		const noserver = document.getElementById('no-server')
-			try {
-				const xmlHttp = new XMLHttpRequest();
-				xmlHttp.open( "GET", serverUrl + str, false)
-				xmlHttp.send( null );
-				noserver.style.display = 'none'
-				return xmlHttp.responseText;
-			} catch (ex) {
-				console.log('Server not connected')
-				noserver.style.display = 'block'
-			}
-	}	
-	
-	setInterval(function () {
-		const conn = document.getElementById('conn')
-		const dist = document.getElementById('dist')
-		let connected = false
-		let d = '?'
-		const resp = req('frame')
-		try {
-			const json = JSON.parse(resp)
-			if (typeof json.connected !== 'undefined') {
-				connected = json.connected
-			}			
-			if (typeof json.d !== 'undefined') {
-				d = json.d
-			}
-			if (typeof json.frame !== 'undefined') {
-				console.log(json.frame.length)
-				document.body.style['background-image'] = "url(data:image/jpeg;base64,"+json.frame+")";
-			}
-		} catch (ex) {
-			console.warn(resp + ' is not valid json')
-		}
-		const btns = document.getElementsByTagName('button')
-		for (let i = 0; i<btns.length; i++) {
-			btns[i].disabled = !connected
-		}
-		
-		
-		conn.innerHTML = connected ? '<span class="green">Connected</span>' : '<span class="red">Disconnected</span>'
-		dist.innerHTML = "Dist: "+d + "m"
-		document.getElementById('instructions').style.display = connected ? 'none' : 'block'
-	}, 200)
-	
-	</script>
+<div style="position: fixed; top: 10px; right: 10px; cursor: pointer; min-height: 42px; min-width: 42px; background-size: 32px; background-repeat: no-repeat; background-position: center; background-color: rgba(255, 255, 255, 0.2); border-radius: 4px" class="tune" onclick="toggleSettings()">
+</div>
+<div id="settings" style="position: fixed; top: 52px; right: 10px; display: none; background: rgba(255, 255, 255, 0.5); border-radius: 4px; padding: 10px">
+<table border="0" cellpadding="10">
+	<tr>
+		<td>Move speed</td>
+		<td><input type="range" min="10" max="100" id="SpeedMove" onchange="setSpeed(this.id, this.value)"></td>
+		<td><span style="width: 36px; display: block" id="valueSpeedMove">?</span></td>
+	</tr>
+	<tr>
+		<td>Turn speed</td>
+		<td><input type="range" min="10" max="100" id="SpeedTurn" onchange="setSpeed(this.id, this.value)"></td>
+		<td><span style="width: 36px; display: block" id="valueSpeedTurn">?</span></td>
+	</tr>
+	<tr>
+		<td>Vert speed</td>
+		<td><input type="range" min="10" max="100" id="SpeedVert" onchange="setSpeed(this.id, this.value)"></td>
+		<td><span style="width: 36px; display: block" id="valueSpeedVert">?</span></td>
+	</tr>
+	<tr>
+		<td colspan="3"><hr></td>
+	</tr>
+	<tr>
+		<td>Timer interval</td>
+		<td><input type="range" min="100" max="500" step="50" id="TimerValue" onchange="setTimerValue(this.value)"></td>
+		<td><span style="width: 36px; display: block" id="valueTimerValue">?</span></td>
+	</tr>
+</table>
+</div>
 
 <div style="position: fixed; right: 10px; bottom: 10px">
 <div id="instructions">
@@ -233,8 +216,105 @@ span {
 	</table>
 	
 	<script>
-	document.onkeypress = function (e) {
-			e = e || window.event;
+	const serverUrl = "http://127.0.0.1:41017/?action="
+	var isServerConnected = false
+	function toggleSettings() {
+		const sets = document.getElementById('settings')
+		if (sets) {
+			sets.style.display = sets.style.display === 'none' ? 'block' : 'none'
+		}
+	}
+	
+	function getLocalStorageItem(key, defaultValue = null) {
+		const val = localStorage.getItem(key)
+		if (val == null) return defaultValue
+		return val
+	}
+	
+	function req(str) {
+		const noserver = document.getElementById('no-server')
+		try {
+			const xmlHttp = new XMLHttpRequest()
+			xmlHttp.open("GET", serverUrl + str, false)
+			xmlHttp.send(null)
+			noserver.style.display = 'none'
+			// if (!isServerConnected) updateAllSettings()
+			isServerConnected = true
+			return xmlHttp.responseText
+		} catch (ex) {
+			console.log('Server not connected')
+			isServerConnected = false
+			noserver.style.display = 'block'
+		}
+	}	
+	
+	function set(type, value, coef = 0.01, min = 10, max = 100, dim = '%') {
+		value = parseInt(value)
+		if (value < min) value = min
+		else if (value > max) value = max
+		const slider = document.getElementById(type)		
+		if (slider && slider.value != value) {
+			slider.value = value
+		}
+		const v = document.getElementById('value' + type)
+		if (v) v.innerHTML = value + dim
+		localStorage.setItem(type, value)
+		req('set' + type + "&value=" + value*coef)
+	}
+	
+	function setSpeed(type, value) {
+		set(type, value)
+	}
+	
+	function setTimerValue(value) {
+		set('TimerValue', value, 1, 100, 500, "ms")
+	}
+	
+	function updateAllSettings() {
+		setSpeed('SpeedMove', getLocalStorageItem('SpeedMove', 100))
+		setSpeed('SpeedTurn', getLocalStorageItem('SpeedTurn', 100))
+		setSpeed('SpeedVert', getLocalStorageItem('SpeedVert', 100))
+		
+		setTimerValue(getLocalStorageItem('TimerValue', 200))
+	}
+	
+	
+	window.onload = function () {
+		updateAllSettings()
+		
+		setInterval(function () {
+			const conn = document.getElementById('conn')
+			const dist = document.getElementById('dist')
+			let connected = false
+			let d = '?'
+			const resp = req('frame&battery=true')
+			try {
+				const json = JSON.parse(resp)
+				if (typeof json.connected !== 'undefined') {
+					connected = json.connected
+				}			
+				if (typeof json.d !== 'undefined') {
+					d = json.d
+				}
+				if (typeof json.frame !== 'undefined') {
+					console.log(json.frame.length)
+					document.body.style['background-image'] = "url(data:image/jpeg;base64,"+json.frame+")";
+				}
+			} catch (ex) {
+				console.warn(resp + ' is not valid json')
+			}
+			const btns = document.getElementsByTagName('button')
+			for (let i = 0; i<btns.length; i++) {
+				btns[i].disabled = !connected
+			}	
+			
+			conn.innerHTML = connected ? '<span class="green">Connected</span>' : '<span class="red">Disconnected</span>'
+			dist.innerHTML = "Dist: "+d + "m"
+			document.getElementById('instructions').style.display = connected ? 'none' : 'block'
+		}, 200)
+		
+		document.onkeypress = function (e) {
+			e = e || window.event
 			const k = e.keyCode
 			if (k == 113) { // "q" - turn left
 				req('turnLeft')
@@ -257,7 +337,10 @@ span {
 			} else if (k == 111) { // "o" - takeoff
 				req('land')
 			}
-	};
+		}	
+	}
+	
+	
 	</script>
 </div>
 </body>
