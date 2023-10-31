@@ -37,8 +37,12 @@ camera = Camera()
 
 # Time interval for each command
 COMMAND_TIME_SECONDS = 0.05
-TIMER_STEPS = 10
+TIMER_STEPS = 4  # 200 ms
 TIMER_COUNT = 0
+
+SPEED_TURN = 1.0
+SPEED_MOVE = 1.0
+SPEED_VERT = 1.0
 
 # Min-max RC values
 min_v = 1300
@@ -52,6 +56,9 @@ max_h = 2.0
 RC_MIN = 1000
 RC_NONE = 1500
 RC_MAX = 2000
+RC_MOVE_RANGE = 200
+RC_TURN_RANGE = 500
+RC_VERT_RANGE = 500
 
 # Channel values (in some 'RC' values)
 def_ch_1 = RC_NONE
@@ -82,10 +89,13 @@ def resetCh():
 
 def controlDef():
     global TIMER_COUNT, TIMER_STEPS, isControlling, ch_1, ch_2, ch_3, ch_4, ch_5
-    if not isControlling: return
+    
     TIMER_COUNT = TIMER_COUNT + 1
+    
     if TIMER_COUNT >= TIMER_STEPS:
-        TIMER_COUNT = 0        
+        TIMER_COUNT = 0
+        print(TIMER_STEPS, SPEED_TURN, SPEED_MOVE, SPEED_VERT)
+        if not isControlling: return        
         pioneer_mini.send_rc_channels(
             channel_1=ch_1,
             channel_2=ch_2,
@@ -95,6 +105,17 @@ def controlDef():
         )
         resetCh()   
 
+def moveHorRCValue(directionSignum):
+    global RC_NONE, RC_MOVE_RANGE, SPEED_MOVE
+    return RC_NONE + directionSignum * RC_MOVE_RANGE * SPEED_MOVE
+
+def moveVertRCValue(directionSignum):
+    global RC_NONE, RC_VERT_RANGE, SPEED_VERT
+    return RC_NONE + directionSignum * RC_VERT_RANGE * SPEED_VERT
+
+def turnRCValue(directionSignum):
+    global RC_NONE, RC_TURN_RANGE, SPEED_TURN
+    return RC_NONE + directionSignum * RC_VERT_RANGE * SPEED_VERT
 
 pioneer_timer = RepeatTimer(COMMAND_TIME_SECONDS, controlDef)
 pioneer_timer.start()
@@ -122,7 +143,7 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         return SimpleCookie(self.headers.get("Cookie"))
 
     def get_response(self):
-        global TIMER_STEPS, isControlling, isServing, ch_1, ch_2, ch_3, ch_4, ch_5, max_h, min_h, pioneer_mini, pioneer_timer
+        global SPEED_MOVE, SPEED_TURN, SPEED_VERT, TIMER_STEPS, isControlling, isServing, ch_1, ch_2, ch_3, ch_4, ch_5, max_h, min_h, pioneer_mini, pioneer_timer
         data = self.query_data
        
         out = { "result": False }
@@ -132,7 +153,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         d = pioneer_mini.get_dist_sensor_data(True)
         if d is None: d = 0 
         if 'action' in data: action = data['action']
-        out["action"] = str(action).lower()
+        out["action"] = action
+        action = str(action).lower()
         out["d"] = d
         if not connected:
             if action == "exit":
@@ -142,10 +164,15 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 out["result"] = True
             else: 
                 out["result"] = False
-        if connected:
-            out["result"] = True
-            if action == "setStep" and 'step' in data: TIMER_STEPS = min(1000, max(100, float(data['step'])) / 50)
-            elif action == "frame":
+        if action == "settimervalue" and 'value' in data:
+            TIMER_STEPS = int(min(1000, max(100, int(data['value'])) / (COMMAND_TIME_SECONDS * 1000)))
+            print('SETTING TIMER', TIMER_STEPS)
+        elif action == "setspeedmove" and 'value' in data: SPEED_MOVE = min(1.0, max(0.1, float(data['value'])))
+        elif action == "setspeedturn" and 'value' in data: SPEED_TURN = min(1.0, max(0.1, float(data['value'])))
+        elif action == "setspeedvert" and 'value' in data: SPEED_VERT = min(1.0, max(0.1, float(data['value'])))
+        elif connected:
+            out["result"] = True            
+            if action == "frame":
                 frame = camera.get_frame()
                 if frame is not None:
                     img = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
@@ -154,18 +181,19 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                     img_byte = base64.b64encode(img_str).decode("utf-8")
                     out["frame"] = img_byte
             elif action == "disarm": pioneer_mini.disarm()
-            elif action == "left": resetCh(); ch_4 = min_v 
-            elif action == "right": resetCh(); ch_4 = max_v 
-            elif action == "forward": resetCh(); ch_3 = min_v 
-            elif action == "back": resetCh(); ch_3 = max_v 
-            elif action == "turnleft": resetCh(); ch_2 = RC_MAX 
-            elif action == "turnright": resetCh(); ch_2 = RC_MIN
+           
+            elif action == "left": resetCh(); ch_4 = moveHorRCValue(-1) 
+            elif action == "right": resetCh(); ch_4 = moveHorRCValue(+1)
+            elif action == "forward": resetCh(); ch_3 = moveHorRCValue(-1)
+            elif action == "back": resetCh(); ch_3 = moveHorRCValue(+1)
+            elif action == "turnleft": resetCh(); ch_2 = turnRCValue(+1) 
+            elif action == "turnright": resetCh(); ch_2 = turnRCValue(-1) 
             elif action == "up":
                 resetCh()
-                if d < max_h: ch_1 = RC_MAX
+                if d < max_h: ch_1 = moveVertRCValue(+1) 
             elif action == "down": 
                 resetCh()
-                if d > min_h: ch_1 = RC_MIN
+                if d > min_h: ch_1 = moveVertRCValue(-1)
             elif action == "liftoff" or action == "takeoff":    
                 pioneer_mini.arm()
                 time.sleep(1)                
