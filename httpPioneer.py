@@ -256,6 +256,14 @@ Handler = WebRequestHandler
 
 httpd = socketserver.TCPServer(("", PORT), Handler)
 print("Serving at port", PORT)
+print("Open HTML WebUI in browser: http://localhost:" + str(PORT))
+print("Use commands:")
+print("  TAKEOFF: http://localhost:" + str(PORT) + "?action=takeoff")
+print("     LAND: http://localhost:" + str(PORT) + "?action=land")
+print(" TURNLEFT: http://localhost:" + str(PORT) + "?action=turnleft")
+print("TURNRIGHT: http://localhost:" + str(PORT) + "?action=turnright")
+print("  FORWARD: http://localhost:" + str(PORT) + "?action=forward")
+print("     BACK: http://localhost:" + str(PORT) + "?action=back")
 
 def checkServer():
     global isServing, httpd
